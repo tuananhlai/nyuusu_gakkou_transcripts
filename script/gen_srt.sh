@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#
+# This script automatically generates SRT subtitle files for any MP3s in the
+# current directory that don't already have one.
+# It uses OpenAI's Whisper for transcription.
+#
+
+# --- Configuration ---
+# Set the language for transcription.
+# A list of supported languages can be found in the Whisper documentation.
+LANGUAGE="Japanese"
+
+# --- Main Script Logic ---
+# Counter for processed files
+PROCESSED_COUNT=0
+
+# Loop through every file ending with .mp3 in the current directory.
+# The `find` command is used to correctly handle filenames that may
+# contain spaces or other special characters.
+find . -maxdepth 1 -type f -name "*.mp3" | while read file; do
+    # Remove the leading './' from the filename
+    file_cleaned=$(basename "$file")
+
+    # Get the filename without the .mp3 extension.
+    # For example, "track01.mp3" becomes "track01".
+    base_name="${file_cleaned%.mp3}"
+
+    # Check if a corresponding .srt file already exists.
+    if [ ! -f "${base_name}.srt" ]; then
+        # If the SRT file does NOT exist, then proceed with transcription.
+        echo "-----------------------------------------------------"
+        echo "Found MP3 without subtitles: '$file_cleaned'"
+        echo "Starting transcription with Whisper..."
+
+        # Run the Whisper command.
+        # The file is passed as an argument, and the language and output
+        # format (srt) are specified.
+        whisper "$file_cleaned" --language "$LANGUAGE" --model turbo -f srt
+
+        echo "Finished processing '$file_cleaned'."
+        PROCESSED_COUNT=$((PROCESSED_COUNT + 1))
+    else
+        # If the SRT file already exists, print a message and skip to the next file.
+        echo "Skipping '$file_cleaned' (subtitles already exist)."
+    fi
+done
+
+echo "-----------------------------------------------------"
+if [ "$PROCESSED_COUNT" -eq 0 ]; then
+    echo "All MP3 files already have subtitles. No new files were processed."
+else
+    echo "Script finished. Processed $PROCESSED_COUNT new file(s)."
+fi
+
