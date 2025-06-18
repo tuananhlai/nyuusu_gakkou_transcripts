@@ -19,14 +19,14 @@ PROCESSED_COUNT=0
 mkdir -p "audio"
 
 # Loop through every file ending with .mp3 in the audio directory.
-# The `find` command is used to correctly handle filenames that may
-# contain spaces or other special characters.
-find audio -maxdepth 1 -type f -name "*.mp3" | while read file; do
+for file in audio/*.mp3; do
+    # Skip if no files match
+    [ -e "$file" ] || continue
+
     # Remove the leading 'audio/' from the filename
     file_cleaned=$(basename "$file")
 
     # Get the filename without the .mp3 extension.
-    # For example, "track01.mp3" becomes "track01".
     base_name="${file_cleaned%.mp3}"
 
     # Check if a corresponding .srt file already exists.
@@ -37,8 +37,6 @@ find audio -maxdepth 1 -type f -name "*.mp3" | while read file; do
         echo "Starting transcription with Whisper..."
 
         # Run the Whisper command.
-        # The file is passed as an argument, and the language and output
-        # format (srt) are specified.
         whisper "$file" --language "$LANGUAGE" --model turbo -f srt
 
         echo "Finished processing '$file_cleaned'."
@@ -47,6 +45,7 @@ find audio -maxdepth 1 -type f -name "*.mp3" | while read file; do
         # If the SRT file already exists, print a message and skip to the next file.
         echo "Skipping '$file_cleaned' (subtitles already exist)."
     fi
+
 done
 
 echo "-----------------------------------------------------"
