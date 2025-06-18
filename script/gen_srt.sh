@@ -2,7 +2,7 @@
 
 #
 # This script automatically generates SRT subtitle files for any MP3s in the
-# current directory that don't already have one.
+# audio/ directory that don't already have one.
 # It uses OpenAI's Whisper for transcription.
 #
 
@@ -15,11 +15,14 @@ LANGUAGE="Japanese"
 # Counter for processed files
 PROCESSED_COUNT=0
 
-# Loop through every file ending with .mp3 in the current directory.
+# Create audio directory if it doesn't exist
+mkdir -p "audio"
+
+# Loop through every file ending with .mp3 in the audio directory.
 # The `find` command is used to correctly handle filenames that may
 # contain spaces or other special characters.
-find . -maxdepth 1 -type f -name "*.mp3" | while read file; do
-    # Remove the leading './' from the filename
+find audio -maxdepth 1 -type f -name "*.mp3" | while read file; do
+    # Remove the leading 'audio/' from the filename
     file_cleaned=$(basename "$file")
 
     # Get the filename without the .mp3 extension.
@@ -36,7 +39,7 @@ find . -maxdepth 1 -type f -name "*.mp3" | while read file; do
         # Run the Whisper command.
         # The file is passed as an argument, and the language and output
         # format (srt) are specified.
-        whisper "$file_cleaned" --language "$LANGUAGE" --model turbo -f srt
+        whisper "$file" --language "$LANGUAGE" --model turbo -f srt
 
         echo "Finished processing '$file_cleaned'."
         PROCESSED_COUNT=$((PROCESSED_COUNT + 1))
@@ -52,4 +55,3 @@ if [ "$PROCESSED_COUNT" -eq 0 ]; then
 else
     echo "Script finished. Processed $PROCESSED_COUNT new file(s)."
 fi
-

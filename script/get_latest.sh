@@ -2,14 +2,14 @@
 
 #
 # This script fetches a podcast's RSS feed and automatically downloads the
-# latest 5 episodes.
+# latest episodes. Default is 10 episodes if not specified.
 #
 
 # --- Configuration ---
 # The URL of the podcast's RSS feed.
 RSS_URL="https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/928f134e-3a6c-4738-a134-acbd00746afe/podcast.rss"
 # Number of latest episodes to check and download.
-EPISODE_COUNT=5
+EPISODE_COUNT=${1:-10}
 # Directory to store downloaded audio files
 AUDIO_DIR="audio"
 
